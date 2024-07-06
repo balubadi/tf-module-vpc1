@@ -134,17 +134,17 @@ resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.ngw.id
   subnet_id     = aws_subnet.public.*.id[0]
 }
-
 resource "aws_vpc_peering_connection" "peer" {
   peer_owner_id = var.account_id
-  peer_vpc_id   = var.default_vpc_id
+  peer_vpc_id   = aws_default_vpc_id
   vpc_id        = aws_vpc.main.id
   auto_accept   = true
   tags          = merge(var.tags, { Name = "peer-for-${var.env}-vpc-to-default-vpc" })
 }
 
+
 resource "aws_route" "default-vpc-peer-route" {
   route_table_id            = var.default_route_table_id
-  destination_cidr_block    = "172.31.0.0/16"
+  destination_cidr_block    = vpc_cidr_block
   vpc_peering_connection_id = aws_vpc_peering_connection.peer.id
 }
